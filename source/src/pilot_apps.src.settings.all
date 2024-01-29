@@ -375,6 +375,9 @@ sources = {
 	#        "generate_starting_zinc_sites",
 	#        "backside_hbond_finder",
 	],
+	"pilot/gulsevin" : [
+		"bootcamp"
+	],
 
 	"pilot/guangfeng" : [
 		"cryst_hbonds", # small molecule xtal dock hbonds reporter
