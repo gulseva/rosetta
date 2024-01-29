@@ -7,10 +7,10 @@
 // // (c) For more information, see http://www.rosettacommons.org. Questions about this can be
 // // (c) addressed to University of Washington UW TechTransfer, email: license@u.washington.edu.
 //
-// #include <iostream>
-//
-// int main() {
-// 	std::cout << "Hello World!" << std::endl;
-// 		return 0;
-// 		} 
-//
+#include <iostream>
+
+int main() {
+	std::cout << "Hello World!" << std::endl;
+	return 0;
+} 
+
