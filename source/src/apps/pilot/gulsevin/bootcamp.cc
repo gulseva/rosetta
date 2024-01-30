@@ -14,11 +14,84 @@
 #include <core/import_pose/import_pose.hh>
 #include <utility/pointer/owning_ptr.hh>
 #include <core/pose/Pose.hh>
+#include </data/programs/Rosetta/rosetta/source/src/core/scoring/ScoreFunction.hh>
+#include </data/programs/Rosetta/rosetta/source/src/core/scoring/ScoreFunctionFactory.hh>
+#include <numeric/random/random.hh>
+#include <basic/Tracer.hh>
+#include <protocols/moves/MonteCarlo.hh>
+#include <core/pack/task/PackerTask.hh>
+#include <core/pack/task/TaskFactory.hh>
+#include <core/pose/Pose.hh>
+#include <core/pack/pack_rotamers.hh>
+#include <core/kinematics/MoveMap.hh>
+#include </data/programs/Rosetta/rosetta/source/src/core/optimization/MinimizerOptions.hh>
+#include </data/programs/Rosetta/rosetta/source/src/core/optimization/AtomTreeMinimizer.hh>
+
+static basic::Tracer TR( "core.io.pdb.file_data" );
 
 int main( int argc, char ** argv ) {
 	devel::init( argc, argv );
 	utility::vector1< std::string > filenames = basic::options::option[ basic::options::OptionKeys::in::file::s ].value();
+	
+	//Define the pose and the default score function objects
 	core::pose::PoseOP mypose = core::import_pose::pose_from_file( filenames[1] );
+	core::scoring::ScoreFunctionOP sfxn = core::scoring::get_score_function();
+
+	//Calculate and print the score of the given pose
+	core::Real score = sfxn->score( *mypose );
+	std::cout << score << std::endl;
+
+	//Create a Monte Carlo constructor mc that takes as input a pose and a score function, plus a temperature
+        protocols::moves::MonteCarlo mc(*mypose, *sfxn, 0.8);
+
+	//Create a copy pose object
+	core::pose::Pose copy_pose;
+
+	for (core::Size i = 0; i < 10; i++){
+	
+	//Define a random generator object and calculate a random number
+	numeric::random::RandomGenerator &generator = numeric::random::rg();
+	core::Real uniform_random_number = generator.uniform();
+	core::Real pert1 = generator.uniform();
+	core::Real pert2 = generator.uniform();
+	//Calculate the total number of residues in the given pose
+	core::Size N = mypose->total_residue();
+
+	//Define a random position based on the random number generator
+	core::Size position = static_cast< core::Size > ( uniform_random_number * N + 1 );
+	
+	//Calculate the phi and psi values of the random position
+	core::Real phi_value = mypose->phi(position);
+	core::Real psi_value = mypose->psi(position);
+
+	//Set new phi/psi values and apply the boltzmann method
+	mypose->set_phi(position, phi_value + pert1);
+	mypose->set_psi(position, psi_value + pert2);
+	mc.boltzmann(*mypose);
+
+	//Define a packer task, restrict to repacking and repack the pose with the given scorefunction
+	core::pack::task::PackerTaskOP repack_task = core::pack::task::TaskFactory::create_packer_task( *mypose );
+	repack_task->restrict_to_repacking();
+	core::pack::pack_rotamers( *mypose, *sfxn, repack_task );
+
+	//Create a movemap to fix or move parts of a residue
+	core::kinematics::MoveMap mm;
+	mm.set_bb( true );
+	mm.set_chi( true );
+	core::optimization::MinimizerOptions min_opts( "lbfgs_armijo_atol", 0.01, true );
+	core::optimization::AtomTreeMinimizer atm;
+
+	copy_pose = *mypose;
+	atm.run( copy_pose, mm, *sfxn, min_opts );
+	*mypose = copy_pose;
+
+        //Print the score of the pose and the corresponding phi/psi values
+        core::Real score = sfxn->score( *mypose );
+        TR << "The score for the step " << i << "is: " << score << std::endl;
+        TR << "Phi: " << phi_value << " Psi: " << psi_value << std::endl;
+
+
+	}
 
 	if ( filenames.size() > 0 ) {
 		std::cout << "You entered: " << filenames[ 1 ] << " as the PDB file to be read" << std::endl;
