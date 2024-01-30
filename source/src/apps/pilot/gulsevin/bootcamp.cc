@@ -26,6 +26,7 @@
 #include <core/kinematics/MoveMap.hh>
 #include </data/programs/Rosetta/rosetta/source/src/core/optimization/MinimizerOptions.hh>
 #include </data/programs/Rosetta/rosetta/source/src/core/optimization/AtomTreeMinimizer.hh>
+#include </data/programs/Rosetta/rosetta/source/src/protocols/moves/MoverStatistics.hh>
 
 static basic::Tracer TR( "core.io.pdb.file_data" );
 
@@ -47,13 +48,19 @@ int main( int argc, char ** argv ) {
 	//Create a copy pose object
 	core::pose::Pose copy_pose;
 
-	for (core::Size i = 0; i < 10; i++){
+
+	//Define the mc_counter as float and the maximum size of the runs as an integer
+	core::Real mc_counter = 0;
+	core::Size max = 20;
+
+	for (core::Size i = 0; i < max; i++){
 	
 	//Define a random generator object and calculate a random number
 	numeric::random::RandomGenerator &generator = numeric::random::rg();
 	core::Real uniform_random_number = generator.uniform();
 	core::Real pert1 = generator.uniform();
 	core::Real pert2 = generator.uniform();
+	
 	//Calculate the total number of residues in the given pose
 	core::Size N = mypose->total_residue();
 
@@ -68,6 +75,19 @@ int main( int argc, char ** argv ) {
 	mypose->set_phi(position, phi_value + pert1);
 	mypose->set_psi(position, psi_value + pert2);
 	mc.boltzmann(*mypose);
+
+	//Check the code for the accepteed structure and count if the code is not 0
+	core::Size acc_code = mc.mc_accepted();
+	if (acc_code != 0){
+		mc_counter++;
+	}
+	
+	//Print the acceptance rate every 10 steps
+	if ((i + 1)  % 10 == 0){
+		core::Real acc_rate = mc_counter / mc.total_trials();
+		std::cout << "The acceptance rate is: " << acc_rate << std::endl;
+	}
+
 
 	//Define a packer task, restrict to repacking and repack the pose with the given scorefunction
 	core::pack::task::PackerTaskOP repack_task = core::pack::task::TaskFactory::create_packer_task( *mypose );
