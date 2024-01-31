@@ -24,11 +24,36 @@
 #include <core/pose/Pose.hh>
 #include <core/pack/pack_rotamers.hh>
 #include <core/kinematics/MoveMap.hh>
+#include <core/kinematics/FoldTree.hh>
 #include </data/programs/Rosetta/rosetta/source/src/core/optimization/MinimizerOptions.hh>
 #include </data/programs/Rosetta/rosetta/source/src/core/optimization/AtomTreeMinimizer.hh>
 #include </data/programs/Rosetta/rosetta/source/src/protocols/moves/MoverStatistics.hh>
+#include </data/programs/Rosetta/rosetta/source/src/protocols/moves/DsspMover.hh>
+#include </data/programs/Rosetta/rosetta/source/src/core/scoring/dssp/Dssp.hh>
+\
+//static basic::Tracer TR( "core.io.pdb.file_data" );
 
-static basic::Tracer TR( "core.io.pdb.file_data" );
+
+//Function 1 
+core::kinematics::FoldTree fold_tree_from_ss(core::pose::Pose pose){
+	core::kinematics::FoldTree ftree = core::kinematics::FoldTree(8);
+	return ftree;
+}
+
+core::kinematics::FoldTree fold_tree_from_string(std::string word){
+	core::scoring::dssp::Dssp::Dssp dssp_object;
+
+	std::cout << "Secondary struct is: " << dssp_object.get_dssp_secstruct() << std::endl;
+	core::kinematics::FoldTree ftree = core::kinematics::FoldTree(8);
+	return ftree;
+}
+
+//Function 2 
+//core::kinematics::FoldTree fold_tree_from_ss(std::string input1){
+//	        return core::kinematics::FoldTree();
+//}
+
+//core::kinematics::FoldTree foldtree_ss = protocols::bootcamp::fold_tree_from_ss( *mypose );
 
 int main( int argc, char ** argv ) {
 	devel::init( argc, argv );
@@ -37,6 +62,13 @@ int main( int argc, char ** argv ) {
 	//Define the pose and the default score function objects
 	core::pose::PoseOP mypose = core::import_pose::pose_from_file( filenames[1] );
 	core::scoring::ScoreFunctionOP sfxn = core::scoring::get_score_function();
+	
+	//Testing the dssp stuff
+	std::cout << fold_tree_from_ss(*mypose) << std::endl;
+	protocols::moves::DsspMover dsspmover;
+	dsspmover.apply(*mypose);
+
+
 
 	//Calculate and print the score of the given pose
 	core::Real score = sfxn->score( *mypose );
