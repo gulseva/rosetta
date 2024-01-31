@@ -1,0 +1,14 @@
+scons: Reading SConscript files ...
+Running versioning script ... Done. (0.0 seconds)
+Number of option files updated: 0
+Total 4680 options.
+Updating submodules needed for compilation.
+Finished updating ResidueProperty code
+-- no changes needed
+Finished updating VariantType code
+-- no changes needed
+scons: done reading SConscript files.
+scons: Building targets ...
+external/cxxtest/cxxtestgen.py --have-std --part -o build/test/debug/linux/5.15/64/x86/gcc/11/default/protocols/bootcamp/FoldTreeFromSSTests.cxxtest.cpp test/protocols/bootcamp/FoldTreeFromSSTests.cxxtest.hh
+g++ -o build/test/debug/linux/5.15/64/x86/gcc/11/default/protocols/bootcamp/FoldTreeFromSSTests.cxxtest.o -c -std=c++0x -ffor-scope -isystem external/boost_submod/ -isystem external/ -isystem external/include/ -isystem external/dbio/ -isystem external/libxml2/include -isystem external/rdkit -isystem external/cxxtest/ -pipe -Wall -Wextra -pedantic -Werror -Wno-long-long -Wno-strict-aliasing -march=core2 -mtune=generic -O0 -g -ggdb -ffloat-store -DBOOST_ERROR_CODE_HEADER_ONLY -DBOOST_SYSTEM_NO_DEPRECATED -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS -DBOOST_DISABLE_THREADS -DPTR_STD -D_GLIBCXX_DEBUG -Iexternal/cxxtest -I. -Isrc -Iexternal/include -Isrc/platform/linux/64/gcc/11 -Itest -Isrc/platform/linux/64/gcc -Isrc/platform/linux/64 -Isrc/platform/linux build/test/debug/linux/5.15/64/x86/gcc/11/default/protocols/bootcamp/FoldTreeFromSSTests.cxxtest.cpp
+scons: building terminated because of errors.
