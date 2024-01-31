@@ -30,21 +30,23 @@
 #include </data/programs/Rosetta/rosetta/source/src/protocols/moves/MoverStatistics.hh>
 #include </data/programs/Rosetta/rosetta/source/src/protocols/moves/DsspMover.hh>
 #include </data/programs/Rosetta/rosetta/source/src/core/scoring/dssp/Dssp.hh>
-\
-//static basic::Tracer TR( "core.io.pdb.file_data" );
+
+static basic::Tracer TR( "core.io.pdb.file_data" );
 
 
-//Function 1 
-core::kinematics::FoldTree fold_tree_from_ss(core::pose::Pose pose){
-	core::kinematics::FoldTree ftree = core::kinematics::FoldTree(8);
-	return ftree;
+//Function 2
+core::kinematics::FoldTree fold_tree_from_dssp_string(std::string &word){
+        core::kinematics::FoldTree ftree = core::kinematics::FoldTree();
+        return ftree;
 }
 
-core::kinematics::FoldTree fold_tree_from_string(std::string word){
-	core::scoring::dssp::Dssp::Dssp dssp_object;
-
-	std::cout << "Secondary struct is: " << dssp_object.get_dssp_secstruct() << std::endl;
-	core::kinematics::FoldTree ftree = core::kinematics::FoldTree(8);
+//Function 1 
+core::kinematics::FoldTree fold_tree_from_ss(core::pose::Pose & pose){
+	core::scoring::dssp::Dssp dsspmover(pose);
+	std::string output_sequence = dsspmover.get_dssp_secstruct();
+	core::kinematics::FoldTree ftree = fold_tree_from_dssp_string(output_sequence);
+	std::cout << "The SS pattern is: " << output_sequence << std::endl;
+	std::cout << "The fold tree is: " << ftree << std::endl;
 	return ftree;
 }
 
@@ -64,11 +66,8 @@ int main( int argc, char ** argv ) {
 	core::scoring::ScoreFunctionOP sfxn = core::scoring::get_score_function();
 	
 	//Testing the dssp stuff
-	std::cout << fold_tree_from_ss(*mypose) << std::endl;
-	protocols::moves::DsspMover dsspmover;
-	dsspmover.apply(*mypose);
-
-
+	
+	fold_tree_from_ss(*mypose);
 
 	//Calculate and print the score of the given pose
 	core::Real score = sfxn->score( *mypose );
