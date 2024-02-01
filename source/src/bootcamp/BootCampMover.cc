@@ -52,7 +52,7 @@
 #include <core/kinematics/MoveMap.hh>
 #include </data/programs/Rosetta/rosetta/source/src/core/optimization/MinimizerOptions.hh>
 #include </data/programs/Rosetta/rosetta/source/src/core/optimization/AtomTreeMinimizer.hh>
-
+#include <protocols/jd2/JobDistributor.hh>
 
 static basic::Tracer TR( "bootcamp.BootCampMover" );
 
@@ -80,7 +80,9 @@ BootCampMover::~BootCampMover(){}
 /// @brief Apply the mover
 void
 BootCampMover::apply( core::pose::Pose& ){
+	
 
+	BootCampMoverOP moveit( new BootCampMover );
 	utility::vector1< std::string > filenames = basic::options::option[ basic::options::OptionKeys::in::file::s ].value();
 
         //Define the pose and the default score function objects
@@ -140,6 +142,10 @@ BootCampMover::apply( core::pose::Pose& ){
         TR << "The score for the step " << i << "is: " << score << std::endl;
         TR << "Phi: " << phi_value << " Psi: " << psi_value << std::endl;
 	}
+
+
+
+	protocols::jd2::JobDistributor::get_instance()->go(moveit);
 }
 ////////////////////////////////////////////////////////////////////////////////
 /// @brief Show the contents of the Mover
@@ -243,5 +249,7 @@ operator<<( std::ostream & os, BootCampMover const & mover )
 	mover.show(os);
 	return os;
 }
+
+
 
 } //bootcamp
